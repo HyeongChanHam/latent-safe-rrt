@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f2">
+  <meta name="description" content="Latent-Safe-RRT combines 3D Gaussian maps and learned reachability to plan around the future consequences of contact with movable objects.">
+  <meta property="og:title" content="Latent-Safe-RRT — See the consequence. Plan the way through.">
+  <meta property="og:description" content="Visual planning among movable obstacles, with learned semantic safety.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="./media/motivation-figure-3.png">
+  <title>Latent-Safe-RRT · Visual planning with semantic safety</title>
+  <link rel="icon" href="./assets/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css">
+  <script src="./assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="Latent-Safe-RRT, back to top"><img src="./assets/mark.svg" width="28" height="28" alt=""><span>LATENT<span class="muted"> / </span>SAFE<span class="muted"> / </span>RRT</span></a>
+    <nav aria-label="Main navigation">
+      <a href="#motivation">Why contact matters</a>
+      <a href="#approach">Approach</a>
+      <a href="#results">Simulation</a>
+      <a class="nav-world" href="#real-world">Real world</a>
+    </nav>
+    <div class="reading-progress" aria-hidden="true"></div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" id="top" aria-labelledby="project-title">
+      <div class="eyebrow"><span class="status-dot"></span> KAIST · VISUAL PLANNING & SEMANTIC SAFETY</div>
+      <h1 id="project-title">Latent<span class="teal">–Safe–</span>RRT</h1>
+      <p class="paper-title">Semantically Safe RRT for Navigation Among Movable Obstacles</p>
+      <p class="hero-thesis">See the consequence.<br class="mobile-break"> <em>Plan the way through.</em></p>
+      <p class="hero-description">A robot may need to move an obstacle to make progress. We use learned reachability and 3D Gaussian maps to reason about what that contact could cause.</p>
+      <p class="authors">Hyeongchan Ham <span>·</span> Seonho Yoo <span>·</span> Seungsu Kang <span>·</span> Minwoo Song <span>·</span> Boseok Kim <span>·</span> Heejin Ahn</p>
+      <p class="affiliation">Korea Advanced Institute of Science and Technology</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#real-demos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg> Watch real-world demos <span aria-hidden="true">↓</span></a>
+        <a class="button secondary" href="#results">Explore the results <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+
+    <section class="section wrap" id="motivation" aria-labelledby="motivation-title">
+      <div class="motivation-heading"><p class="eyebrow section-number">01 / MOTIVATION</p><h2 id="motivation-title">Plan for what contact can cause.</h2></div>
+      <div class="motivation-figures">
+        <figure class="motivation-figure" id="motivation-example">
+          <img src="./media/motivation-figure-3.png" width="2000" height="675" fetchpriority="high" alt="Illustrative emergency-access scenario: collision avoidance leaves a fire engine blocked; pushing a car toward a person creates danger; moving the other car toward a damaged wall opens a passage away from the person.">
+          <figcaption><span>Illustrative scenario · Make room without endangering people.</span></figcaption>
+        </figure>
+        <figure class="motivation-figure" id="problem-setting">
+          <h3>Our problem setting</h3>
+          <img src="./media/motivation-figure-2.png" width="1466" height="631" loading="lazy" alt="Our navigation setting: avoid collision with a fixed obstacle, while allowing contact with movable blocks only when the supported blue block remains in place.">
+          <figcaption><span>Avoid fixed obstacles. Move objects without causing a fall.</span></figcaption>
+        </figure>
+      </div>
+      <div class="contact-grid">
+        <figure class="contact-example">
+          <div class="example-heading"><span class="outcome safe"><span></span> SAFE CONTACT</span><span class="mono">SINGLE BLOCK</span></div>
+          <video class="auto-video contact-video" data-src="./media/safe-contact.mp4" poster="./media/safe-contact.jpg" muted loop playsinline controls preload="none" aria-label="Safe simulated pushing of the single block, with fixed and robot-mounted views"></video>
+          <figcaption><h3>A useful push.</h3><p>The robot moves the single block while the supported blue block stays in place.</p></figcaption>
+        </figure>
+        <figure class="contact-example">
+          <div class="example-heading"><span class="outcome unsafe"><span></span> UNSAFE CONSEQUENCE</span><span class="mono">SUPPORTING BLOCK</span></div>
+          <video class="auto-video contact-video" data-src="./media/unsafe-contact.mp4" poster="./media/unsafe-contact.jpg" muted loop playsinline controls preload="none" aria-label="Simulated pushing of a support block causes the upper blue block to fall"></video>
+          <figcaption><h3>A delayed failure.</h3><p>Contact with a supporting block causes the blue block above it to fall.</p></figcaption>
+        </figure>
+      </div>
+      <div class="media-note"><p>Actual Isaac Sim physics recordings. Borders show the <strong>observed safety label</strong>: green before failure, red after failure.</p></div>
+    </section>
+
+    <section class="approach-band" id="approach" aria-labelledby="approach-title">
+      <div class="wrap section">
+        <div class="section-heading idea-heading"><div><p class="eyebrow section-number">02 / THE IDEA</p><h2 id="approach-title">Plan with learned<br>semantic safety.</h2></div><p class="section-intro">Render a candidate pose in the 3D Gaussian map, evaluate its latent safety, and extend the search when the learned value permits.</p></div>
+        <figure class="method-overview">
+          <img src="./media/method-overview.png" width="3000" height="2392" loading="lazy" alt="Latent-Safe-RRT overview: the semantic safety problem, image rendering and latent safety evaluation for tree expansion, simulation planning in training and unseen environments, and reconstructed real-world testbed results.">
+        </figure>
+      </div>
+    </section>
+
+    <section class="section wrap" id="results" aria-labelledby="results-title">
+      <div class="section-heading"><div><p class="eyebrow section-number">03 / SIMULATION</p><h2 id="results-title">From local consequences<br>to global routes.</h2></div><p class="section-intro">Explore the search trees, planned paths, and learned safety fields inside the reconstructed scenes.</p></div>
+      <div class="simulation-grid">
+        <figure class="simulation-result" id="training-environment">
+          <h3>Training Environment</h3>
+          <p>Planning in the movable-block corridor used for learning.</p>
+          <video class="auto-video" data-src="./media/corridor.mp4" poster="./media/corridor.jpg" muted loop playsinline controls preload="none" aria-label="Planning in the same movable-block corridor used during training"></video>
+        </figure>
+        <figure class="simulation-result" id="unseen-environment">
+          <h3>Unseen Environment</h3>
+          <p>Transfer to a ring layout not seen during training.</p>
+          <video class="auto-video" data-src="./media/ring.mp4" poster="./media/ring.jpg" muted loop playsinline controls preload="none" aria-label="Exploratory planning in a ring environment not seen during training"></video>
+        </figure>
+      </div>
+      <div class="scene-legend"><span><i class="path-key"></i> Planned path</span><span><i class="tree-key"></i> Exploration tree</span><span><i class="risk-key"></i> Negative value overlay</span></div>
+      <p class="scope-note">Planned-state visualizations in 3DGS. Transfer to the unseen environment is exploratory.</p>
+    </section>
+
+    <section class="real-world-band" id="real-world" aria-labelledby="real-world-title">
+      <div class="wrap section">
+        <div class="section-heading"><div><p class="eyebrow section-number">04 / REAL WORLD</p><h2 id="real-world-title">From a camera recording<br>to a physical run.</h2></div><p class="section-intro">Reconstruct the testbed, plan in its visual map, and follow the selected routes on the physical setup.</p></div>
+
+        <div class="capture-story real-capture"><figure><video class="auto-video" data-src="./media/capture.mp4" poster="./media/capture.jpg" muted loop playsinline controls preload="none" aria-label="Original video recording used to reconstruct the physical testbed"></video><figcaption>Original scene video</figcaption></figure><div><p class="eyebrow">01 / CAPTURE</p><h3>Start with a video.</h3><p>A camera records the roads, vehicles, and stacked boxes. These views become a 3D Gaussian map that the planner can look through.</p></div></div>
+
+        <div class="stage-heading"><div><p class="eyebrow">02 / RECONSTRUCT</p><h3>A visual map of the same scene.</h3></div><p>The original reconstruction retains the surroundings. Pruning isolates the testbed for planning.</p></div>
+        <div class="reconstruction-grid">
+          <figure><div class="example-heading"><span class="mono">ORIGINAL 3DGS</span><span class="media-tag">Unpruned</span></div><video class="auto-video reconstruction-video" data-src="./media/reconstruction-unpruned.mp4" poster="./media/reconstruction-unpruned.jpg" muted loop playsinline controls preload="none" aria-label="Orbit around the original unpruned Gaussian reconstruction of the testbed"></video><figcaption>Before removing the surrounding splats.</figcaption></figure>
+          <figure><div class="example-heading"><span class="mono">PLANNING MAP</span><span class="media-tag">Pruned</span></div><video class="auto-video reconstruction-video" data-src="./media/reconstruction-pruned.mp4" poster="./media/reconstruction-pruned.jpg" muted loop playsinline controls preload="none" aria-label="Matching orbit around the pruned testbed Gaussian map prepared for planning"></video><figcaption>The pruned scene prepared for planning.</figcaption></figure>
+        </div>
+
+        <div class="stage-heading" id="testbed-plans"><div><p class="eyebrow">03 / PLAN IN THE RECONSTRUCTION</p><h3>Six starts. One destination.</h3></div><p>Selected global paths from starts 1, 2, 3, 6, 8, and 9 to goal 7, shown in the 3DGS map.</p></div>
+        <figure class="testbed-planning-film">
+          <video class="auto-video" data-src="./media/testbed.mp4" poster="./media/testbed.jpg" muted loop playsinline controls preload="none" aria-label="Six planned routes and exploration trees in the reconstructed real-world testbed"></video>
+          <figcaption>Planned paths and search trees in the reconstructed testbed.</figcaption>
+        </figure>
+        <div class="route-grid" aria-label="Six selected testbed planning paths">
+          <figure class="route-card" id="plan-1"><a href="./media/plan-start-1-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 1 to 7"><img src="./media/plan-start-1-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 1 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 1 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+          <figure class="route-card" id="plan-2"><a href="./media/plan-start-2-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 2 to 7"><img src="./media/plan-start-2-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 2 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 2 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+          <figure class="route-card" id="plan-3"><a href="./media/plan-start-3-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 3 to 7"><img src="./media/plan-start-3-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 3 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 3 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+          <figure class="route-card" id="plan-6"><a href="./media/plan-start-6-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 6 to 7"><img src="./media/plan-start-6-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 6 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 6 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+          <figure class="route-card" id="plan-8"><a href="./media/plan-start-8-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 8 to 7"><img src="./media/plan-start-8-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 8 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 8 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+          <figure class="route-card" id="plan-9"><a href="./media/plan-start-9-goal-7.jpg" target="_blank" rel="noopener" aria-label="Open full-size planning view for route 9 to 7"><img src="./media/plan-start-9-goal-7.jpg" width="1600" height="1000" loading="lazy" alt="Magenta global RRT path from start 9 to goal 7 in the testbed Gaussian map"></a><figcaption><span>Route 9 <span aria-hidden="true">→</span> 7</span></figcaption></figure>
+        </div>
+        <div class="route-legend"><span><i class="route-line"></i> Planned path</span><span><i class="route-start"></i> Start</span><span><i class="route-goal"></i> Goal</span></div>
+
+        <div class="stage-heading" id="real-demos"><div><p class="eyebrow">04 / RUN ON THE TESTBED</p><h3>From the map to the real scene.</h3></div><p>Actual robot demonstrations for the six planned routes, shown in the same order. Play any recording to watch the full run.</p></div>
+        <div class="demo-grid" aria-label="Six physical robot demonstrations in the same route order as the planning views">
+          <figure class="demo-card" id="demo-route-1" data-route="1" data-recording="05"><div class="example-heading"><span class="mono">ROUTE 1 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-05.mp4" poster="./media/real-demo-05.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 1 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+          <figure class="demo-card" id="demo-route-2" data-route="2" data-recording="06"><div class="example-heading"><span class="mono">ROUTE 2 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-06.mp4" poster="./media/real-demo-06.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 2 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+          <figure class="demo-card" id="demo-route-3" data-route="3" data-recording="04"><div class="example-heading"><span class="mono">ROUTE 3 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-04.mp4" poster="./media/real-demo-04.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 3 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+          <figure class="demo-card" id="demo-route-6" data-route="6" data-recording="03"><div class="example-heading"><span class="mono">ROUTE 6 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-03.mp4" poster="./media/real-demo-03.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 6 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+          <figure class="demo-card" id="demo-route-8" data-route="8" data-recording="02"><div class="example-heading"><span class="mono">ROUTE 8 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-02.mp4" poster="./media/real-demo-02.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 8 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+          <figure class="demo-card" id="demo-route-9" data-route="9" data-recording="01"><div class="example-heading"><span class="mono">ROUTE 9 → 7</span><span class="media-tag">Physical testbed</span></div><video class="auto-video hardware-video" data-autoplay="false" data-src="./media/real-demo-01.mp4" poster="./media/real-demo-01.jpg" muted playsinline controls preload="none" aria-label="Physical robot demonstration following route 9 to goal 7"></video><figcaption><span>Recorded on the physical testbed</span></figcaption></figure>
+        </div>
+        <p class="scope-note">Planning views above are rendered in the reconstructed map. The six videos here are recordings from the physical testbed.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap site-footer"><a class="wordmark" href="#top"><img src="./assets/mark.svg" width="24" height="24" alt=""><span>Latent-Safe-RRT</span></a><p>KAIST · 2026 <span>Visual planning with learned semantic safety.</span></p><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>
